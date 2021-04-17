@@ -104,3 +104,6 @@ def one_day(date):
 def date_range(start,end):
     multi_date_results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).filter(Measurement.date >= start).filter(Measurement.date <= end).all()
     return jsonify(multi_date_results)
+
+if __name__ == "__main__":
+    app.run(debug=True)
