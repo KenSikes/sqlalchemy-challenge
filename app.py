@@ -47,16 +47,29 @@ def welcome():
 #Return the JSON representation of your dictionary.
 @app.route("/api/v1.0/precipitation") 
 def precipitation():
-    results = (session.query(Measurement.date, Measurement.tobs)
+    precip = (session.query(Measurement.date, Measurement.tobs)
                       .order_by(Measurement.date))
 
-    precipitation_date_tobs = []
-    for each_row in results:
+    precipitation = []
+    for row in precip:
         dt_dict = {}
-        dt_dict["date"] = each_row.date
-        dt_dict["tobs"] = each_row.tobs
-        precipitation_date_tobs.append(dt_dict)
+        dt_dict["date"] = row.date
+        dt_dict["tobs"] = row.tobs
+        precipitation.append(dt_dict)
 
-    return jsonify(precipitation_date_tobs)
+    return jsonify(precipitation)
 
+#/api/v1.0/stations
+#Return a JSON list of stations from the dataset.
+def stations():
+    site_list = session.query(Station.name).all()
+    return jsonify(station_list)
 
+#/api/v1.0/tobs
+#Query the dates and temperature observations of the most active station for the last year of data.
+#Return a JSON list of temperature observations (TOBS) for the previous year.
+
+#/api/v1.0/<start> and /api/v1.0/<start>/<end>
+#Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
+#When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.
+#When given the start and the end date, calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive.
