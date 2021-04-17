@@ -61,13 +61,33 @@ def precipitation():
 
 #/api/v1.0/stations
 #Return a JSON list of stations from the dataset.
+@app.route("/api/v1.0/stations")
 def stations():
     site_list = session.query(Station.name).all()
-    return jsonify(station_list)
+    return jsonify(site_list)
 
 #/api/v1.0/tobs
 #Query the dates and temperature observations of the most active station for the last year of data.
 #Return a JSON list of temperature observations (TOBS) for the previous year.
+
+# last 12 months variable
+last_twelve_months = '2016-08-23'
+
+#most active station
+active_stations = session.query(Measurement.station, func.count(Measurement.station)).\
+            group_by(Measurement.station).\
+            order_by(func.count(Measurement.station).desc()).all()
+
+most_active_station = active_stations[0][0]
+session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+                filter(Measurement.station == most_active_station).all()
+
+@app.route("/api/v1.0/tobs")
+def tobs():
+    tob_results = session.query(Measurement.date,Measurement.tobs).filter(Measurement.date >= last_twelve_months).filter(most_active_station)
+    return jsonify(tob_results)
+
+
 
 #/api/v1.0/<start> and /api/v1.0/<start>/<end>
 #Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
